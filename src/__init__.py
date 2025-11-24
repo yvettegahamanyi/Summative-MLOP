@@ -1,0 +1,4 @@
+"""
+Waste Classification MLOps Package
+"""
+

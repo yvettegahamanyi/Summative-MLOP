@@ -1,0 +1,57 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+
+# Virtual environment
+.env/
+.venv/
+env/
+venv/
+ENV/
+
+# Environment variables
+.env
+
+# IDE / Editor folders
+.vscode/
+.idea/
+*.swp
+
+# Byte-compiled / cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Pytest / Coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+coverage.xml
+.pytest_cache/
+
+# FastAPI + Uvicorn
+*.pid
+*.db
+
+# Jupyter Notebooks checkpoints
+.ipynb_checkpoints/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Render / Deployment
+*.sqlite3

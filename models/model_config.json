@@ -1,0 +1,15 @@
+{
+  "class_names": [
+    "Cardboard",
+    "Food Organics",
+    "Glass",
+    "Metal",
+    "Miscellaneous Trash",
+    "Paper",
+    "Plastic",
+    "Textile Trash",
+    "Vegetation"
+  ],
+  "img_size": [227, 227],
+  "model_path": "models/waste_classifier_final.keras"
+}
