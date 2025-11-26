@@ -7,13 +7,9 @@ import streamlit as st
 import requests
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
-from datetime import datetime, timedelta
-import time
+from datetime import datetime
 import os
 from dotenv import load_dotenv
-from pathlib import Path
-import json
 
 # Load environment variables
 load_dotenv()
@@ -78,8 +74,12 @@ def get_classes():
 
 
 @st.cache_data(ttl=10)
-def get_training_runs(limit=10):
+def get_training_runs(limit=10, force_fetch=False):
     """Get training runs from backend."""
+    # Check if retraining is in progress and avoid API calls unless forced
+    if not force_fetch and hasattr(st.session_state, 'retraining_in_progress') and st.session_state.retraining_in_progress:
+        return []
+    
     try:
         response = requests.get(f"{BACKEND_URL}/retrain/runs?limit={limit}", timeout=5)
         if response.status_code == 200:
@@ -174,12 +174,19 @@ def show_dashboard(health, classes):
     
     # Recent Training Runs
     st.subheader("Recent Training Runs")
-    runs = get_training_runs(limit=5)
-    if runs:
-        runs_df = pd.DataFrame(runs)
-        st.dataframe(runs_df[['id', 'started_at', 'completed_at', 'status']], use_container_width=True)
+    
+    # Check if retraining is in progress
+    retraining_in_progress = hasattr(st.session_state, 'retraining_in_progress') and st.session_state.retraining_in_progress
+    
+    if retraining_in_progress:
+        st.info("⏳ Retraining is currently in progress. Training run data will be updated after completion.")
     else:
-        st.info("No training runs found.")
+        runs = get_training_runs(limit=5)
+        if runs:
+            runs_df = pd.DataFrame(runs)
+            st.dataframe(runs_df[['id', 'started_at', 'completed_at', 'status']], use_container_width=True)
+        else:
+            st.info("No training runs found.")
 
 
 def show_prediction(health, classes):
@@ -371,6 +378,12 @@ def show_retraining(health):
         st.error("❌ Backend is not available. Please check the server status.")
         return
     
+    # Initialize session state for retraining
+    if 'retraining_in_progress' not in st.session_state:
+        st.session_state.retraining_in_progress = False
+    if 'last_retraining_start' not in st.session_state:
+        st.session_state.last_retraining_start = None
+    
     col1, col2 = st.columns(2)
     
     with col1:
@@ -380,25 +393,69 @@ def show_retraining(health):
         The process runs in the background and takes approximately 5-10 minutes.
         """)
         
-        if st.button("🚀 Start Retraining", type="primary"):
-            with st.spinner("Starting retraining..."):
-                try:
-                    response = requests.post(f"{BACKEND_URL}/retrain", timeout=10)
-                    if response.status_code == 200:
-                        result = response.json()
-                        st.success(f"✅ {result.get('message')}")
-                        st.balloons()
-                    else:
-                        st.error(f"❌ Failed to start retraining: {response.text}")
-                except Exception as e:
-                    st.error(f"❌ Error: {str(e)}")
+        # Show different UI based on retraining status
+        if st.session_state.retraining_in_progress:
+            st.warning("⏳ Retraining is currently in progress. Please wait...")
+            if st.button("🛑 Mark as Complete", help="Click if retraining finished"):
+                st.session_state.retraining_in_progress = False
+                st.cache_data.clear()
+                st.rerun()
+        else:
+            if st.button("🚀 Start Retraining", type="primary"):
+                with st.spinner("Starting retraining..."):
+                    try:
+                        response = requests.post(f"{BACKEND_URL}/retrain", timeout=10)
+                        if response.status_code == 200:
+                            result = response.json()
+                            st.success(f"✅ {result.get('message')}")
+                            st.balloons()
+                            # Mark retraining as in progress
+                            st.session_state.retraining_in_progress = True
+                            st.session_state.last_retraining_start = datetime.now()
+                            st.cache_data.clear()
+                            st.rerun()
+                        else:
+                            st.error(f"❌ Failed to start retraining: {response.text}")
+                    except Exception as e:
+                        st.error(f"❌ Error: {str(e)}")
     
     with col2:
         st.subheader("Training Status")
-        if st.button("🔄 Refresh Status"):
-            st.cache_data.clear()
         
-        runs = get_training_runs(limit=10)
+        # Only show refresh button if not retraining
+        if not st.session_state.retraining_in_progress:
+            if st.button("🔄 Refresh Status"):
+                st.cache_data.clear()
+        else:
+            st.info("🔄 Auto-refresh disabled during retraining to prevent interruption")
+            if st.session_state.last_retraining_start:
+                elapsed = datetime.now() - st.session_state.last_retraining_start
+                st.write(f"⏱️ Retraining started: {elapsed.seconds // 60}m {elapsed.seconds % 60}s ago")
+        
+        # Only fetch training runs if not currently retraining
+        if not st.session_state.retraining_in_progress:
+            runs = get_training_runs(limit=10)
+        else:
+            # Periodically check if retraining has completed
+            if st.button("🔍 Check if Retraining Completed", help="Check backend for completion status"):
+                with st.spinner("Checking retraining status..."):
+                    try:
+                        # Force fetch to check status
+                        recent_runs = get_training_runs(limit=1, force_fetch=True)
+                        if recent_runs:
+                            latest_run = recent_runs[0]
+                            if latest_run.get('status') in ['completed', 'failed']:
+                                st.session_state.retraining_in_progress = False
+                                st.success("✅ Retraining process detected as completed!")
+                                st.cache_data.clear()
+                                st.rerun()
+                            else:
+                                st.info(f"⏳ Retraining still in progress. Status: {latest_run.get('status', 'unknown')}")
+                    except Exception as e:
+                        st.warning(f"Could not check status: {str(e)}")
+            
+            runs = []
+            st.info("📊 Training run data will be available after retraining completes")
         if runs:
             # Filter for most recent
             latest_run = runs[0] if runs else None

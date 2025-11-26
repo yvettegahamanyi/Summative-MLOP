@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import List, Optional
 import uvicorn
 
+
 # Add src directory to path to allow imports
 # This allows running from either the src/ directory or the parent directory
 src_dir = Path(__file__).parent.absolute()
@@ -57,7 +58,7 @@ def initialize_model():
     
     try:
         print("Attempting to load model...")
-        model = load_model("models/efficientnetb0_waste_classifier.h5")
+        model = load_model("/models/efficientnetb0_waste_classifier.h5")
         class_names = get_class_names()
         img_size = (224, 224)
         print("Model initialized successfully!")
