@@ -9,13 +9,13 @@ Usage:
     pip install locust
 
     # Run with web UI (recommended):
-    locust -f locustfile.py --host=https://summative-mlop-8ozf.onrender.com
+    locust -f locustfile.py --host=https://summative-mlop-1.onrender.com
 
     # Run headless with specific parameters:
-    locust -f locustfile.py --host=https://summative-mlop-8ozf.onrender.com --users 50 --spawn-rate 5 --run-time 60s --headless
+    locust -f locustfile.py --host=https://summative-mlop-1.onrender.com --users 50 --spawn-rate 5 --run-time 60s --headless
 
     # Run with HTML report:
-    locust -f locustfile.py --host=https://summative-mlop-8ozf.onrender.com --users 100 --spawn-rate 10 --run-time 120s --headless --html report.html
+    locust -f locustfile.py --host=https://summative-mlop-1.onrender.com --users 100 --spawn-rate 10 --run-time 120s --headless --html report.html
 """
 
 import os
@@ -303,4 +303,4 @@ if __name__ == "__main__":
     print("- LightUser: Light monitoring simulation")
     print("- PredictionStressTest: Prediction endpoint stress test")
     print("\nTo run tests:")
-    print("locust -f locustfile.py --host=https://summative-mlop-8ozf.onrender.com")
+    print("locust -f locustfile.py --host=https://summative-mlop-1.onrender.com")

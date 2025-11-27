@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 # Load environment variables
 load_dotenv()
-BACKEND_URL = os.getenv("BACKEND_URL", "https://summative-mlop-8ozf.onrender.com")
+BACKEND_URL = os.getenv("BACKEND_URL", "https://summative-mlop-1.onrender.com")
 
 # Page configuration
 st.set_page_config(
