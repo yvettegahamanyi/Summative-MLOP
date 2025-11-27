@@ -5,7 +5,9 @@ Waste classification system is a platform that can classify waste into different
 ## Access the project
 
 Backend: https://summative-mlop-8ozf.onrender.com/docs
+
 Frontend: https://summative-mlop-u4ckamwovu5dhcbcvaoun3.streamlit.app/
+
 Demo: https://youtu.be/L6m5INObx8Y
 
 ## Project Structure
