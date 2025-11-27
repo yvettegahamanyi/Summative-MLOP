@@ -8,3 +8,5 @@ psycopg2-binary
 numpy
 pandas
 dotenv
+locust
+requests

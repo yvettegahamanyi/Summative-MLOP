@@ -60,7 +60,9 @@ def initialize_model():
     
     try:
         print("Attempting to load model...")
-        model = load_model("models/efficientnetb0_waste_classifier.h5")
+        # Use relative path that works when running from src/ directory
+        model_path = Path(__file__).parent.parent / "models" / "efficientnetb0_waste_classifier.h5"
+        model = load_model(str(model_path))
         class_names = get_class_names()
         img_size = (224, 224)
         print("Model initialized successfully!")
