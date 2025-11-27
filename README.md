@@ -1,6 +1,12 @@
-# Waste Classification MLOps Pipeline
+# Waste Classification System
 
-A complete MLOps pipeline for waste classification using EfficientNetB0, PostgreSQL, and FastAPI.
+Waste classification system is a platform that can classify waste into different categories Cardboard, Food Organics, Glass, Metal, Miscellaneous Trash, Paper, Plastic, Textile Trash, and Vegetation. The system was build using a Streamlit web user interface to allow users to use the system, it also has a FastApi backend system that exposes the api to interact with the model.
+
+## Access the project
+
+Backend: https://summative-mlop-8ozf.onrender.com/docs
+Frontend: https://summative-mlop-u4ckamwovu5dhcbcvaoun3.streamlit.app/
+Demo: https://youtu.be/L6m5INObx8Y
 
 ## Project Structure
 
@@ -15,18 +21,29 @@ Summative-MLOP/
 │   ├── model.py             # Model retraining logic
 │   ├── requirements.txt
 │   └── database.py          # PostgreSQL database utilities
+├── ui/
+│   ├── app.py              # Streamlit application (main entry point)
+│   └── .env                # environment variables(BACKEND_URL)
 ├── models/                  # Saved models (created after training)
 │   ├── waste_classifier_final.tf/
 │   └── model_config.json
+├── locustfile.py     # Locust file to simulate flood on the system
+├── README.md
+├── app-requirement.txt # contains all libraries required to run the project
+├── .gitignore
 └── .env(with DATABASE_URL)
 ```
 
-## Setup
+# Backend
+
+A complete MLOps pipeline for waste classification using EfficientNetB0, PostgreSQL, and FastAPI.
+
+## Setup Backend
 
 1. **Install dependencies:**
 
 ```bash
-pip install -r requirements.txt
+pip install -r app-requirements.txt
 ```
 
 2. **Set up PostgreSQL database:**
@@ -40,7 +57,7 @@ pip install -r requirements.txt
 
 3. **Train the model:**
    - Run the notebook `notebook/waste-classification.ipynb` in Google Colab
-   - The model will be saved to `models/waste_classifier_final.tf`
+   - The model will be saved to `models/waste_classifier_final.h5`
 
 ## Usage
 
@@ -58,61 +75,7 @@ uvicorn src.main:app --host 0.0.0.0 --port 8000
 
 ### API Endpoints
 
-#### 1. Predict Single Image
-
-```bash
-curl -X POST "http://localhost:8000/predict" \
-  -F "file=@image.jpg"
-```
-
-#### 2. Predict Multiple Images
-
-```bash
-curl -X POST "http://localhost:8000/predict/batch" \
-  -F "files=@image1.jpg" \
-  -F "files=@image2.jpg"
-```
-
-#### 3. Upload Image for Retraining
-
-```bash
-curl -X POST "http://localhost:8000/upload" \
-  -F "file=@image.jpg" \
-  -F "class_name=Plastic"
-```
-
-#### 4. Upload Multiple Images for Retraining
-
-```bash
-curl -X POST "http://localhost:8000/upload/batch" \
-  -F "files=@image1.jpg" \
-  -F "files=@image2.jpg" \
-  -F "class_names=Plastic,Paper"
-```
-
-#### 5. Trigger Model Retraining
-
-```bash
-curl -X POST "http://localhost:8000/retrain"
-```
-
-#### 6. Get Database Statistics
-
-```bash
-curl "http://localhost:8000/stats"
-```
-
-#### 7. Get Class Names
-
-```bash
-curl "http://localhost:8000/classes"
-```
-
-#### 8. Health Check
-
-```bash
-curl "http://localhost:8000/health"
-```
+![alt text](assets/api_documentation.png)
 
 ## Valid Class Names
 
@@ -126,14 +89,6 @@ curl "http://localhost:8000/health"
 - Textile Trash
 - Vegetation
 
-## Workflow
-
-1. **Initial Training**: Train model using the notebook
-2. **Prediction**: Use API to classify waste images
-3. **Data Collection**: Upload new images via API to database
-4. **Retraining**: Trigger retraining when enough new data is available
-5. **Model Update**: New model automatically replaces the old one
-
 ## Database Schema
 
 The PostgreSQL database has two main tables:
@@ -146,9 +101,79 @@ The PostgreSQL database has two main tables:
 - `DATABASE_URL`: PostgreSQL connection string (required)
 - `PORT`: Server port (default: 8000)
 
-## Notes
+# Frontend
 
-- Models are saved in TensorFlow SavedModel format (`.tf` directories)
-- The model loads from `models/waste_classifier_final.tf` by default
-- Retraining uses data from the PostgreSQL database
-- All images are validated before being saved to the database
+A comprehensive Streamlit-based user interface for the Waste Classification ML system.
+
+## Features
+
+- **Dashboard**: Model uptime monitoring and system health
+- **Prediction**: Upload images and get real-time predictions with confidence scores
+- **Upload Data**: Single and batch image upload with class selection
+- **Retraining**: Trigger and monitor model retraining
+- **Visualizations**: Data insights and training metrics
+
+## Setup Frontend
+
+1. **Install dependencies:**
+
+```bash
+pip install -r app-requirements.txt
+```
+
+2. **Set up backend url:**
+
+   - Create a PostgreSQL database on Render (or any PostgreSQL host)
+   - Set the `BACKEND_URL` environment variable:
+
+   ```bash
+   export DATABASE_URL="http://0.0.0.0:8000"
+   ```
+
+## Usage
+
+### Run the application
+
+```bash
+streamlit run app.py
+```
+
+## Usage
+
+### Dashboard
+
+- View model status and uptime
+- Check system health
+- Monitor recent training runs
+
+### Prediction
+
+- Upload an image
+- Get classification results with confidence scores
+- View probability distribution across all classes
+
+### Upload Data
+
+- **Batch Upload**: Upload multiple images with individual class selectors
+
+### Retraining
+
+- Trigger model retraining
+- Monitor training status
+- View training metrics and history
+
+### Visualizations
+
+- Training run status distribution
+- Training timeline
+- Metrics visualization for completed runs
+
+## Environment Variables
+
+- `BACKEND_URL`: backend connection string (required)
+
+## Locust Visualization
+
+Simulate a flood of requests on waste classification backend server
+
+![alt text](assets/locust_results.png)
