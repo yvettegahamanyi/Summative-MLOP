@@ -8,6 +8,8 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 import uvicorn
+from dotenv import load_dotenv
+
 
 
 # Add src directory to path to allow imports
@@ -230,50 +232,6 @@ async def predict(file: UploadFile = File(...)):
         raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 
 
-# @app.post("/predict/batch")
-# async def predict_batch_endpoint(files: List[UploadFile] = File(...)):
-#     """
-#     Predict waste categories for multiple images.
-    
-#     Args:
-#         files: List of uploaded image files
-    
-#     Returns:
-#         List of predictions for each image
-#     """
-#     global model, class_names, img_size
-    
-#     if model is None:
-#         try:
-#             initialize_model()
-#         except Exception as e:
-#             raise HTTPException(status_code=503, detail=f"Model not available: {str(e)}")
-    
-#     try:
-#         # Read all files
-#         images_data = []
-#         filenames = []
-#         for file in files:
-#             image_bytes = await file.read()
-#             images_data.append(image_bytes)
-#             filenames.append(file.filename)
-        
-#         # Make predictions
-#         results = predict_batch(model, images_data, class_names, img_size)
-        
-#         # Add filenames to results
-#         for i, result in enumerate(results):
-#             if "error" not in result:
-#                 result["filename"] = filenames[i]
-#             else:
-#                 result["filename"] = filenames[i]
-        
-#         return {"results": results, "total": len(results)}
-    
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail=f"Batch prediction error: {str(e)}")
-
-
 @app.post("/upload")
 async def upload_image(
     file: UploadFile = File(...),
@@ -419,8 +377,9 @@ async def list_training_runs(limit: int = 10):
 
 
 if __name__ == "__main__":
+    load_dotenv()
     # Get port from environment or use default
-    port = int(os.getenv("PORT", 8000))
+    port = int(os.getenv("PORT", "8000"))
     
     uvicorn.run(app, host="0.0.0.0", port=port)
 
