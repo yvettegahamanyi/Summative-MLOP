@@ -6,13 +6,11 @@ A comprehensive interface for model monitoring, prediction, and retraining.
 import streamlit as st
 import requests
 import pandas as pd
-import plotly.express as px
 from datetime import datetime
 import os
-from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv()
+# load_dotenv()
 BACKEND_URL = os.getenv("BACKEND_URL", "https://summative-mlop-1.onrender.com")
 
 # Page configuration
@@ -232,18 +230,6 @@ def show_prediction(health, classes):
                                     {"Class": k, "Probability": v}
                                     for k, v in sorted(probabilities.items(), key=lambda x: x[1], reverse=True)
                                 ])
-                                
-                                # Bar chart
-                                fig = px.bar(
-                                    prob_df,
-                                    x="Class",
-                                    y="Probability",
-                                    title="Prediction Probabilities",
-                                    color="Probability",
-                                    color_continuous_scale="Blues"
-                                )
-                                fig.update_layout(showlegend=False)
-                                st.plotly_chart(fig, use_container_width=True)
                                 
                                 # Table
                                 st.dataframe(prob_df, use_container_width=True)
@@ -586,4 +572,5 @@ def show_visualizations(health, classes):
 
 if __name__ == "__main__":
     main()
+
 
