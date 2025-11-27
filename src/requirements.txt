@@ -1,9 +1,12 @@
 tensorflow
 fastapi
 uvicorn
+pillow
+scikit-learn
 python-multipart
 psycopg2-binary
-sklearn
 numpy
 pandas
+matplotlib
+seaborn
 dotenv
